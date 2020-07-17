@@ -13,6 +13,7 @@
 #    under the License.
 
 
+import acos_client.errors as acos_errors
 from oslo_config import cfg
 from oslo_log import log as logging
 from taskflow import task
@@ -27,6 +28,12 @@ LOG = logging.getLogger(__name__)
 
 class L7PolicyParent(object):
 
+    def _create_l7policy(self):
+        pass
+
+    def _update_l7policy(self):
+        pass
+
     def set(self, l7policy, listeners):
         filename = l7policy.id
         p = PolicyUtil()
@@ -40,6 +47,8 @@ class L7PolicyParent(object):
             self.axapi_client.slb.aflex_policy.create(
                 file=filename, script=script, size=size, action="import")
             LOG.debug("l7policy created successfully: %s", l7policy.id)
+        except acos_errors:
+            pass
         except Exception as e:
             LOG.exception("Failed to create/update l7policy: %s", str(e))
             raise
