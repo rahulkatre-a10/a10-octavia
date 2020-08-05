@@ -41,7 +41,9 @@ class ListenersParent(object):
 
         vport_templates = {}
         template_vport = CONF.listener.template_virtual_port
-        vport_templates['template-virtual-port'] = template_vport if template_vport.lower() != "none" else None
+        if template_vport and template_vport.lower() == 'none':
+            template_vport = None
+        vport_templates['template-virtual-port'] = template_vport
 
         template_args = {}
 
@@ -68,17 +70,22 @@ class ListenersParent(object):
             # TODO(hthompson6) work around for issue in acos client
             listener.protocol = listener.protocol.lower()
             template_http = CONF.listener.template_http
-
-            vport_templates['template-http'] = template_http if template_http.lower() != "none" else None
+            if template_http and template_http.lower() == 'none':
+                template_http = None
+            vport_templates['template-http'] = template_http
             if ha_conn_mirror is not None:
                 ha_conn_mirror = None
                 LOG.warning("'ha_conn_mirror' is not allowed for HTTP, TERMINATED_HTTPS listener.")
         else:
             template_tcp = CONF.listener.template_tcp
-            vport_templates['template-tcp'] = template_tcp if template_tcp.lower() != "none" else None
+            if template_tcp and template_tcp.lower() == 'none':
+                template_tcp = None
+            vport_templates['template-tcp'] = template_tcp
 
         template_policy = CONF.listener.template_policy
-        vport_templates['template-policy'] = template_policy if template_policy.lower() != "none" else None
+        if template_policy and template_policy.lower() == 'none':
+            template_policy = None
+        vport_templates['template-policy'] = template_policy
 
         # Add all config filters here
         if no_dest_nat and (

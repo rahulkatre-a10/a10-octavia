@@ -17,7 +17,6 @@ import logging
 
 from oslo_config import cfg
 
-from a10_octavia.common import a10constants
 from a10_octavia.common.data_models import Certificate
 
 CONF = cfg.CONF
