@@ -60,7 +60,3 @@ def meta(lbaas_obj, key, default):
     except Exception:
         return default
     return meta_json.get(key, default)
-
-
-def get_template_name(template_str):
-    return None if template_str in a10constants.NONE_STR else template_str

@@ -39,9 +39,9 @@ class ListenersParent(object):
         use_rcv_hop = CONF.listener.use_rcv_hop_for_resp
         ha_conn_mirror = CONF.listener.ha_conn_mirror
 
-        virtual_port_templates = {}
-        template_virtual_port = CONF.listener.template_virtual_port
-        virtual_port_templates['template-virtual-port'] = utils.get_template_name(template_virtual_port)
+        vport_templates = {}
+        template_vport = CONF.listener.template_virtual_port
+        vport_templates['template-virtual-port'] = template_vport if template_vport.lower() != "none" else None
 
         template_args = {}
 
@@ -67,18 +67,18 @@ class ListenersParent(object):
         if listener.protocol in a10constants.HTTP_TYPE:
             # TODO(hthompson6) work around for issue in acos client
             listener.protocol = listener.protocol.lower()
-            virtual_port_template = CONF.listener.template_http
+            template_http = CONF.listener.template_http
 
-            virtual_port_templates['template-http'] = utils.get_template_name(virtual_port_template)
+            vport_templates['template-http'] = template_http if template_http.lower() != "none" else None
             if ha_conn_mirror is not None:
                 ha_conn_mirror = None
                 LOG.warning("'ha_conn_mirror' is not allowed for HTTP, TERMINATED_HTTPS listener.")
         else:
-            virtual_port_template = CONF.listener.template_tcp
-            virtual_port_templates['template-tcp'] = utils.get_template_name(virtual_port_template)
+            template_tcp = CONF.listener.template_tcp
+            vport_templates['template-tcp'] = template_tcp if template_tcp.lower() != "none" else None
 
-        virtual_port_template = CONF.listener.template_policy
-        virtual_port_templates['template-policy'] = utils.get_template_name(virtual_port_template)
+        template_policy = CONF.listener.template_policy
+        vport_templates['template-policy'] = template_policy if template_policy.lower() != "none" else None
 
         # Add all config filters here
         if no_dest_nat and (
@@ -102,7 +102,7 @@ class ListenersParent(object):
                    ha_conn_mirror=ha_conn_mirror,
                    use_rcv_hop=use_rcv_hop,
                    conn_limit=conn_limit,
-                   virtual_port_templates=virtual_port_templates,
+                   virtual_port_templates=vport_templates,
                    **template_args)
 
 
