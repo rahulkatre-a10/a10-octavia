@@ -41,7 +41,8 @@ class ListenersParent(object):
 
         virtual_port_templates = {}
         template_virtual_port = CONF.listener.template_virtual_port
-        virtual_port_templates['template-virtual-port'] = utils.get_template_name(template_virtual_port)
+        virtual_port_templates['template-virtual-port'] = utils.get_template_name(
+            template_virtual_port)
 
         template_args = {}
 
