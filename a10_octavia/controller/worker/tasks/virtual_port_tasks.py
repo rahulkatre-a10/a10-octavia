@@ -69,7 +69,6 @@ class ListenersParent(object):
         if listener.protocol in a10constants.HTTP_TYPE:
             # TODO(hthompson6) work around for issue in acos client
             listener.protocol = listener.protocol.lower()
-
             template_http = CONF.listener.template_http
             if template_http and template_http.lower() == 'none':
                 template_http = None
