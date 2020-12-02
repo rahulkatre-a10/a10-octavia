@@ -164,6 +164,8 @@ class CheckExistingThunderToProjectMappedEntries(BaseDatabaseTask):
         hierarchical_mt = vthunder_config.hierarchical_multitenancy
         if hierarchical_mt == 'enable' and CONF.a10_global.use_parent_partition:
             return
+        """getting thunder-cluster object by IP address
+        """
         vthunder_ids = self.vthunder_repo.get_vthunders_by_ip_address(
             db_apis.get_session(),
             ip_address=vthunder_config.ip_address)
@@ -179,6 +181,8 @@ class CheckExistingThunderToProjectMappedEntries(BaseDatabaseTask):
                 vthunder.ip_address, vthunder.partition_name)
             config_ip_addr_partition = '{}:{}'.format(
                 vthunder_config.ip_address, vthunder_config.partition_name)
+            """Why below condition is being explicitely checked, since it will always be true. since
+            the task above it checks the same."""
             if existing_ip_addr_partition == config_ip_addr_partition:
                 if vthunder.project_id != loadbalancer.project_id:
                     raise exceptions.ProjectInUseByExistingThunderError(

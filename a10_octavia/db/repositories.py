@@ -17,7 +17,7 @@ import datetime
 
 from oslo_config import cfg
 from oslo_log import log as logging
-from sqlalchemy.orm import noload
+from sqlalchemy.orm import noload, load_only
 from sqlalchemy import or_
 from sqlalchemy import and_
 
@@ -383,3 +383,38 @@ class MemberRepository(repo.MemberRepository):
             and_(self.model_class.subnet_id == subnet_id,
                  or_(self.model_class.provisioning_status == consts.PENDING_DELETE,
                      self.model_class.provisioning_status == consts.ACTIVE))).count()
+
+
+
+from alembic import op
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, joinedload
+from a10_octavia.db.models import Project, Partitions, Thunder_Cluster
+
+try:
+    engine = create_engine("mysql+pymysql://root:test@127.0.0.1:3306/octavia")
+except NameError:
+    pass
+else:
+    session = sessionmaker(bind=engine)
+    sess = session()
+
+# data = sess.query(Project).join(Thunder_Cluster).join(Partitions)
+# data = sess.query(Project).options(joinedload("thunder_cluster"), joinedload("partition")).all()
+
+# data = sess.query(Project).all()
+import timeit
+# Eager loading
+data = sess.query(Project).options(joinedload("thunder_cluster"),
+                                   joinedload("partition")).all()
+
+
+"""
+eager-loading along path.
+session.query(Parent).options(
+                            joinedload('foo').
+                                joinedload('bar').
+                                joinedload('bat')
+                            ).all()
+"""
+print(data)

@@ -302,6 +302,9 @@ class LoadBalancerFlows(object):
         lb_create_flow.add(database_tasks.ReloadLoadBalancer(
             requires=constants.LOADBALANCER_ID,
             provides=constants.LOADBALANCER))
+        """Didn't understood the purpose of below 2 tasks, 
+        CheckExistingProjectToThunderMappedEntries: Is to check whether the config IP
+        """
         lb_create_flow.add(
             a10_database_tasks.CheckExistingProjectToThunderMappedEntries(
                 inject={

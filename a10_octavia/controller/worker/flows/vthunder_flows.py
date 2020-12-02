@@ -354,7 +354,11 @@ class VThunderFlows(object):
         sf_name = prefix + '-' + constants.GET_AMPHORA_FOR_LB_SUBFLOW
 
         amp_for_lb_flow = linear_flow.Flow(sf_name)
-
+        """Why we need 2 tasks, we are creating vthunder for lb in picture the create task 
+        hav returned the vthunder object. 
+        Changes for CreateRackVthunderEntry by addition of more tasks or adding data in 
+        all required tables through same task. 
+        """
         amp_for_lb_flow.add(a10_database_tasks.CreateRackVthunderEntry(
             name=sf_name + '-' + 'create_rack_vThunder_entry_in_database',
             requires=(constants.LOADBALANCER, a10constants.VTHUNDER_CONFIG)))

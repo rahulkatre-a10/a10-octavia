@@ -17,6 +17,7 @@ from enum import Enum
 
 import sqlalchemy as sa
 from sqlalchemy_utils import ChoiceType
+from sqlalchemy.orm import relationship
 
 from a10_octavia.common import data_models
 from a10_octavia.db import base_models
@@ -111,6 +112,7 @@ class Thunder_Cluster(base_models.BASE, TimeStampData):
     cluster_ip_address = sa.Column(sa.String(64), nullable=False)
     undercloud = sa.Column(sa.Boolean(), default=False, nullable=False)
     topology = sa.Column(ChoiceType(Topology, impl=sa.Integer()), default=Topology.STANDALONE.value)
+    # project = relationship('Project')
 
 
 class Partitions(base_models.BASE, TimeStampData):
@@ -128,6 +130,8 @@ class Project(base_models.BASE, TimeStampData):
     id = sa.Column(sa.String(36), primary_key=True, nullable=False)
     partition_id = sa.Column(sa.String(36), sa.ForeignKey('partitions.id'))
     thunder_cluster_id = sa.Column(sa.String(36), sa.ForeignKey('thunder_cluster.id'))
+    thunder_cluster = relationship("Thunder_Cluster", backref="projects")
+    partition = relationship("Partitions", backref="projects")
 
 
 class Ethernet_Interface(base_models.BASE, TimeStampData):
