@@ -956,7 +956,7 @@ class AmphoraePostNetworkUnplug(VThunderBaseTask):
         try:
             if loadbalancer.amphorae:
                 amphora_id = loadbalancer.amphorae[0].id
-                if len(added_ports[amphora_id]) > 0:
+                if added_ports.get(amphora_id) and len(added_ports[amphora_id]) > 0:
                     self.axapi_client.system.action.write_memory()
                     self.axapi_client.system.action.reload_reboot_for_interface_detachment(
                         vthunder.acos_version)
