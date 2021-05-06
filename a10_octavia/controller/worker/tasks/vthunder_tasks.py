@@ -279,9 +279,39 @@ class ConfigureVRRPSync(VThunderBaseTask):
 def configure_avcs(axapi_client, device_id, device_priority, floating_ip, floating_ip_mask):
     axapi_client.system.action.set_vcs_device(device_id, device_priority)
     axapi_client.system.action.set_vcs_para(floating_ip, floating_ip_mask)
+    
+
     axapi_client.system.action.vcs_enable()
+    
     axapi_client.system.action.write_memory()
     axapi_client.system.action.vcs_reload()
+
+
+class ConfigureBladeParams(VThunderBaseTask):
+    @axapi_client_decorator
+    def execute(self, vthunder):
+        try:
+            self.axapi_client.device_context.switch(2, None)
+            attempts = 0
+            while attempts < 10:
+                try:
+                    self.axapi_client.vrrpa.blade.update(1, 100)
+                    break
+                except acos_errors.ACOSException:
+                    attempts+=1
+                    continue
+            self.axapi_client.device_context.switch(1, None)
+            LOG.debug("Configured the master vThunder for VRID")
+        except (acos_errors.ACOSException, req_exceptions.ConnectionError) as e:
+            LOG.exception("Failed to configure VRID on vthunder: %s", str(e))
+            raise e
+
+
+
+class DeviceReload(VThunderBaseTask):
+    @axapi_client_decorator
+    def execute(self, vthunder):
+        self.axapi_client.system.action.device_reload()
 
 
 class ConfigureaVCSMaster(VThunderBaseTask):

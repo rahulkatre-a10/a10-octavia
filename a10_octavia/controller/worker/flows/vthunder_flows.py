@@ -339,6 +339,10 @@ class VThunderFlows(object):
             name=sf_name + '-' + a10constants.VCS_SYNC_WAIT + '-for-thunder',
             requires=a10constants.VTHUNDER))
 
+#        vrrp_subflow.add(vthunder_tasks.ConfigureBladeParams(
+#            name=sf_name + '-' + 'blade-configuration',
+#            requires=a10constants.VTHUNDER))
+#
         return vrrp_subflow
 
     def _get_vrrp_status_subflow(self, sf_name):
@@ -392,6 +396,20 @@ class VThunderFlows(object):
         # Wait for aVCS sync
         configure_vrrp_subflow.add(vthunder_tasks.VCSSyncWait(
             name=sf_name + '-' + a10constants.VCS_SYNC_WAIT,
+            requires=a10constants.VTHUNDER))
+        
+        configure_vrrp_subflow.add(vthunder_tasks.DeviceReload(
+            name=sf_name + '-' + 'device-reload',
+            requires=a10constants.VTHUNDER))
+
+        configure_vrrp_subflow.add(vthunder_tasks.VThunderComputeConnectivityWait(
+            name=sf_name + '-' + a10constants.WAIT_FOR_BACKUP_SYNC + '_1',
+            rebind={a10constants.VTHUNDER: a10constants.BACKUP_VTHUNDER},
+            requires=(constants.AMPHORA)))
+
+
+        configure_vrrp_subflow.add(vthunder_tasks.ConfigureBladeParams(
+            name=sf_name + '-' + 'blade-configuration',
             requires=a10constants.VTHUNDER))
         return configure_vrrp_subflow
 
