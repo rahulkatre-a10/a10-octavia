@@ -413,6 +413,7 @@ class TestNetworkTasks(base.BaseTaskTestCase):
         vrid.vrid_port_id = a10constants.MOCK_VRRP_PORT_ID
         vrid.vrid = VRID_VALUE
         mock_network_task.axapi_client = self.client_mock
+        self.client_mock.vrrpa.get.return_value = {"vrid": {}}
         result = mock_network_task.execute(VTHUNDER, [vrid], SUBNET_1, 0, 1)
         self.network_driver_mock.delete_port.assert_called_with(
             a10constants.MOCK_VRRP_PORT_ID)

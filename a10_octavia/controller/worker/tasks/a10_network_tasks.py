@@ -850,6 +850,7 @@ class DeleteVRIDPort(BaseNetworkTask):
     def execute(self, vthunder, vrid_list, subnet, lb_count_subnet, member_count):
         vrid = None
         vrid_floating_ip_list = []
+        attempts = 10
         resource_count = lb_count_subnet + member_count
         if resource_count <= 1 and vthunder:
             for vr in vrid_list:
@@ -860,15 +861,25 @@ class DeleteVRIDPort(BaseNetworkTask):
             if vrid:
                 try:
                     self.network_driver.delete_port(vrid.vrid_port_id)
-                    if not vthunder.partition_name or vthunder.partition_name == 'shared':
-                        self.axapi_client.vrrpa.update(
-                            vrid.vrid, floating_ips=vrid_floating_ip_list)
-                    else:
-                        self.axapi_client.vrrpa.update(
-                            vrid.vrid, floating_ips=vrid_floating_ip_list, is_partition=True)
-                    LOG.info(
-                        "VRID floating IP: %s deleted",
-                        vrid.vrid_floating_ip)
+                    vrid_fip_set = set(vrid_floating_ip_list)
+                    vrrpa_vrid_fip = set()
+                    while attempts > 0:
+                        if not vthunder.partition_name or vthunder.partition_name == 'shared':
+                            self.axapi_client.vrrpa.update(
+                                vrid.vrid, floating_ips=vrid_floating_ip_list)
+                        else:
+                            self.axapi_client.vrrpa.update(
+                                vrid.vrid, floating_ips=vrid_floating_ip_list, is_partition=True)
+                        vrrpa_vrid = self.axapi_client.vrrpa.get(vrid.vrid)
+                        if vrrpa_vrid['vrid'].get('floating-ip'):
+                            vrid_fip_list = vrrpa_vrid['vrid']['floating-ip']['ip-address-cfg']
+                            vrrpa_vrid_fip = set(data['ip-address'] for data in vrid_fip_list)
+                        if not (vrrpa_vrid_fip - vrid_fip_set):
+                            LOG.info(
+                                "VRID floating IP: %s deleted",
+                                vrid.vrid_floating_ip)
+                            break
+                        attempts -= 1
                     return vrid, True
                 except Exception as e:
                     LOG.exception(
